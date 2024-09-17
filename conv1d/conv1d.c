@@ -1,12 +1,10 @@
 /***
-// Convolution
-// 1d: f[m] = hxg = sum_k(h[m-k]*g[k])
-// 2d: f[m,n] = hxg = sum_kl(h[m-k,n-l]*g[k,l])
-*/
+ * conv1d: f[m] = hxg = sum_k(h[m-k]*g[k])
+ */
 
 #include <stdio.h>
 #include <stdlib.h>
-#include "conv.h"
+#include "conv1d.h"
 
 int main(int argc, char *argv[]) {
 
@@ -27,8 +25,12 @@ int main(int argc, char *argv[]) {
     userInputArray(kernelSize, kernel);
 
     // 1d convolution
-    int* output = createArray(inputSize);
-    // conv1D(inputSize, kernelSize, input, kernel);
+    int outputSize = inputSize+kernelSize-1;
+    int* output = createArray(outputSize);
+    conv1D(inputSize, kernelSize, outputSize, input, kernel, output);
+
+    // print output
+    printOutput(outputSize, output);
 
     free(input);
     free(kernel);
@@ -53,8 +55,20 @@ void userInputArray(int size, int* arr) {
 }
 
 // 1d: f[m] = hxg = sum_k(h[m-k]*g[k])
-int conv1D(int inputSize, int kernelSize, int* input, int* kernel) {
-    for (int i=0; i<inputSize; i++) {
+void conv1D(int inputSize, int kernelSize, int outputSize, int* input, int* kernel, int* output) {
+    for (int m=0; m<outputSize; m++) {
+        int sum = 0;
+        for (int k=0; k<kernelSize; k++) {
+            if (m-k<0 || m-k>=inputSize) continue;
+            sum += input[m-k] * kernel[k];
+        }
+        output[m] = sum; // f[m]
     }
-    return 0;
+}
+
+void printOutput(int size, int* output) {
+    for (int i=0; i<size; i++) {
+        printf("%d ", output[i]);
+    }
+    printf("\n");
 }
